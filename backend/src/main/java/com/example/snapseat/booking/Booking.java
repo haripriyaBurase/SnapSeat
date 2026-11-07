@@ -1,8 +1,8 @@
-package com.example.snapSeat.booking;
+package com.example.snapseat.booking;
 
-import com.example.snapSeat.event.Event;
-import com.example.snapSeat.seat.Seat;
-import com.example.snapSeat.user.User;
+import com.example.snapseat.event.Event;
+import com.example.snapseat.seat.Seat;
+import com.example.snapseat.user.User;
 import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;

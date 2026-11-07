@@ -1,4 +1,4 @@
-package com.example.snapSeat.booking;
+package com.example.snapseat.booking;
 
 public enum BookingStatus {
     PENDING,

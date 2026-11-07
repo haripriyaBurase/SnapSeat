@@ -1,4 +1,4 @@
-package com.example.snapSeat;
+package com.example.snapseat;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

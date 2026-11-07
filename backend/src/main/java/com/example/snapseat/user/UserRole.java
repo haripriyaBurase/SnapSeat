@@ -1,4 +1,4 @@
-package com.example.snapSeat.user;
+package com.example.snapseat.user;
 
 public enum UserRole {
     USER,

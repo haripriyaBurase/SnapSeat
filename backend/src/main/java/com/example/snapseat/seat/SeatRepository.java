@@ -1,4 +1,4 @@
-package com.example.snapSeat.seat;
+package com.example.snapseat.seat;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

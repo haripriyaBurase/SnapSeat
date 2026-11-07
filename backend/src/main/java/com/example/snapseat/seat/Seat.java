@@ -1,7 +1,7 @@
-package com.example.snapSeat.seat;
+package com.example.snapseat.seat;
 
-import com.example.snapSeat.event.Event;
-import com.example.snapSeat.user.User;
+import com.example.snapseat.event.Event;
+import com.example.snapseat.user.User;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;

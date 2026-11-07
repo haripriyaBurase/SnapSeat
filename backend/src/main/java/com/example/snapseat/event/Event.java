@@ -1,4 +1,4 @@
-package com.example.snapSeat.event;
+package com.example.snapseat.event;
 
 import jakarta.persistence.*;
 
