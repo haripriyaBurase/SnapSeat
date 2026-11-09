@@ -2,6 +2,11 @@ package com.example.snapseat.booking;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface BookingRepository  extends JpaRepository<Booking, Long> {
+import java.util.Optional;
 
+public interface BookingRepository  extends JpaRepository<Booking, Long> {
+    Optional<Booking> findBySeatIdAndStatus(
+            Long seatId,
+            BookingStatus status
+    );
 }
