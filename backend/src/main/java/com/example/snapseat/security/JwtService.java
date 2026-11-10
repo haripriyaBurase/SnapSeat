@@ -15,12 +15,15 @@ public class JwtService {
     );
 
     public String generateToken(String email) {
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .subject(email)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 86400000))
                 .signWith(key)
                 .compact();
+
+        System.out.println("GENERATED TOKEN: " + token);
+        return token;
     }
 
     public String extractEmail(String token) {

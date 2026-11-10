@@ -12,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 
-
-
 @Service
 public class BookingService {
     private final BookingRepository br;
