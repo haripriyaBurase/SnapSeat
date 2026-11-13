@@ -10,20 +10,29 @@ import org.springframework.stereotype.Service;
 import java.time.OffsetDateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import com.example.snapseat.seat.SeatUpdate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Service
 public class BookingService {
     private final BookingRepository br;
     private final SeatRepository sr;
     private final UserRepository ur;
+    private final SimpMessagingTemplate messagingTemplate;
 
 
+    public BookingService(
+            BookingRepository br,
+            SeatRepository sr,
+            UserRepository ur,
+            SimpMessagingTemplate messagingTemplate) {
 
-    public BookingService(BookingRepository br, SeatRepository sr, UserRepository ur) {
         this.br = br;
         this.sr = sr;
         this.ur = ur;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @Transactional
@@ -69,6 +78,27 @@ public class BookingService {
         booking.setSeat(s);
         booking.setStatus(BookingStatus.PENDING);
 
-        return br.save(booking);
+        Booking savedBooking = br.save(booking);
+
+        SeatUpdate update = new SeatUpdate(
+                s.getId(),
+                s.getSeatNumber(),
+                s.getStatus(),
+                s.getEvent().getId()
+        );
+
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        messagingTemplate.convertAndSend(
+                                "/topic/events/" + s.getEvent().getId() + "/seats",
+                                update
+                        );
+                    }
+                }
+        );
+
+        return savedBooking;
     }
 }

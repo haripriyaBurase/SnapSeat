@@ -1,3 +1,4 @@
+
 package com.example.snapseat.seat;
 
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,17 @@ public class SeatController {
     }
 
     @GetMapping
-    public List<Seat> getSeats(@PathVariable Long eventId) {
-        return ss.getSeatsByEvent(eventId);
+    public List<SeatResponse> getSeats(@PathVariable Long eventId) {
+
+        return ss.getSeatsByEvent(eventId)
+                .stream()
+                .map(seat -> new SeatResponse(
+                        seat.getId(),
+                        seat.getSeatNumber(),
+                        seat.getTier(),
+                        seat.getPrice(),
+                        seat.getStatus()
+                ))
+                .toList();
     }
 }
