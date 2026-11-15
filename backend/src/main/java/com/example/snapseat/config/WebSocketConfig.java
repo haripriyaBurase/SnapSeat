@@ -1,3 +1,4 @@
+
 package com.example.snapseat.config;
 
 import org.springframework.context.annotation.Configuration;
@@ -12,12 +13,18 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
+
+        // Clients subscribe to destinations beginning with /topic
         config.enableSimpleBroker("/topic");
+
+        // Messages sent from clients to backend begin with /app
         config.setApplicationDestinationPrefixes("/app");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+
+        // WebSocket connection endpoint
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("http://localhost:5173")
                 .withSockJS();
