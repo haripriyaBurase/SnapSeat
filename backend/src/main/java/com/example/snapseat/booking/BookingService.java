@@ -2,6 +2,7 @@
 package com.example.snapseat.booking;
 
 import com.example.snapseat.booking.dto.BookingResponse;
+import com.example.snapseat.event.SeatStatusChangedEvent;
 import com.example.snapseat.seat.Seat;
 import com.example.snapseat.seat.SeatRepository;
 import com.example.snapseat.seat.SeatStatus;
@@ -9,12 +10,10 @@ import com.example.snapseat.seat.SeatUpdate;
 import com.example.snapseat.user.User;
 import com.example.snapseat.user.UserRepository;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.OffsetDateTime;
@@ -26,18 +25,18 @@ public class BookingService {
     private final BookingRepository br;
     private final SeatRepository sr;
     private final UserRepository ur;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final ApplicationEventPublisher eventPublisher;
 
     public BookingService(
             BookingRepository br,
             SeatRepository sr,
             UserRepository ur,
-            SimpMessagingTemplate messagingTemplate
+            ApplicationEventPublisher eventPublisher
     ) {
         this.br = br;
         this.sr = sr;
         this.ur = ur;
-        this.messagingTemplate = messagingTemplate;
+        this.eventPublisher = eventPublisher;
     }
 
     // Reserve a seat
@@ -101,7 +100,8 @@ public class BookingService {
 
         Booking savedBooking = br.save(booking);
 
-        publishSeatUpdateAfterCommit(s);
+        // Publish seat status change event
+        publishSeatUpdate(s);
 
         return savedBooking;
     }
@@ -133,14 +133,12 @@ public class BookingService {
     @Transactional
     public Booking payForBooking(Long bookingId, String email) {
 
-        // Find the seat ID before acquiring locks.
         Long seatId = br.findSeatIdByBookingId(bookingId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Booking not found"
                 ));
 
-        // Lock the seat first to maintain the same lock order
-        // as the reservation process.
+        // Lock the seat first
         Seat seat = sr.findByIdForUpdate(seatId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Seat not found"
@@ -177,7 +175,7 @@ public class BookingService {
 
         OffsetDateTime now = OffsetDateTime.now();
 
-        // Verify that the reservation has not expired
+        // Verify reservation expiry
         if (seat.getLockedUntil() == null ||
                 !seat.getLockedUntil().isAfter(now)) {
 
@@ -187,7 +185,7 @@ public class BookingService {
             );
         }
 
-        // Verify that the seat is still locked by this user
+        // Verify seat ownership
         if (seat.getStatus() != SeatStatus.LOCKED ||
                 seat.getLockedBy() == null ||
                 !seat.getLockedBy().getEmail().equals(email)) {
@@ -210,16 +208,17 @@ public class BookingService {
         seat.setLockedUntil(null);
 
         sr.save(seat);
+
         Booking confirmedBooking = br.save(booking);
 
-        // Notify other users after the transaction commits
-        publishSeatUpdateAfterCommit(seat);
+        // Publish seat status change event
+        publishSeatUpdate(seat);
 
         return confirmedBooking;
     }
 
-    // Broadcast seat updates only after successful database commit
-    private void publishSeatUpdateAfterCommit(Seat seat) {
+    // Publish Spring application event
+    private void publishSeatUpdate(Seat seat) {
 
         SeatUpdate update = new SeatUpdate(
                 seat.getId(),
@@ -228,18 +227,8 @@ public class BookingService {
                 seat.getEvent().getId()
         );
 
-        Long eventId = seat.getEvent().getId();
-
-        TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronization() {
-                    @Override
-                    public void afterCommit() {
-                        messagingTemplate.convertAndSend(
-                                "/topic/events/" + eventId + "/seats",
-                                update
-                        );
-                    }
-                }
+        eventPublisher.publishEvent(
+                new SeatStatusChangedEvent(update)
         );
     }
 }
