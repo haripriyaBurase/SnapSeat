@@ -41,4 +41,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("status") BookingStatus status,
             @Param("now") OffsetDateTime now
     );
+
+
+    List<Booking> findByUserEmailOrderByCreatedAtDesc(String email);
+
 }

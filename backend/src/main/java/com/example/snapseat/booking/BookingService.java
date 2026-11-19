@@ -2,6 +2,7 @@
 package com.example.snapseat.booking;
 
 import com.example.snapseat.booking.dto.BookingResponse;
+import com.example.snapseat.booking.dto.MyBookingResponse;
 import com.example.snapseat.event.SeatStatusChangedEvent;
 import com.example.snapseat.seat.Seat;
 import com.example.snapseat.seat.SeatRepository;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -214,10 +216,15 @@ public class BookingService {
         // Publish seat status change event
         publishSeatUpdate(seat);
 
+        // Publish booking confirmation event for PDF generation
+        eventPublisher.publishEvent(
+                new BookingConfirmedEvent(confirmedBooking.getId())
+        );
+
         return confirmedBooking;
     }
 
-    // Publish Spring application event
+    // Publish seat status change event
     private void publishSeatUpdate(Seat seat) {
 
         SeatUpdate update = new SeatUpdate(
@@ -230,5 +237,25 @@ public class BookingService {
         eventPublisher.publishEvent(
                 new SeatStatusChangedEvent(update)
         );
+    }
+
+    // Fetch all bookings of the logged-in user
+    @Transactional(readOnly = true)
+    public List<MyBookingResponse> getMyBookings(String email) {
+
+        return br.findByUserEmailOrderByCreatedAtDesc(email)
+                .stream()
+                .map(b -> new MyBookingResponse(
+                        b.getId(),
+                        b.getEvent().getTitle(),
+                        b.getEvent().getEventDate(),
+                        b.getEvent().getVenue(),
+                        b.getSeat().getSeatNumber(),
+                        b.getSeat().getTier().name(),
+                        b.getSeat().getPrice(),
+                        b.getStatus(),
+                        b.getCreatedAt()
+                ))
+                .toList();
     }
 }

@@ -3,10 +3,13 @@ package com.example.snapseat.booking;
 
 import com.example.snapseat.booking.dto.BookingResponse;
 
+import com.example.snapseat.booking.dto.MyBookingResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -77,5 +80,17 @@ public class BookingController {
         );
 
         return ResponseEntity.ok(response);
+    }
+    // Get all bookings of the logged-in user
+    @GetMapping("/my-bookings")
+    public ResponseEntity<List<MyBookingResponse>> getMyBookings(
+            Authentication auth
+    ) {
+
+        String email = auth.getName();
+
+        List<MyBookingResponse> bookings = bs.getMyBookings(email);
+
+        return ResponseEntity.ok(bookings);
     }
 }

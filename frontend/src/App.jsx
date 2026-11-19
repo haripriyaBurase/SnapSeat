@@ -1,11 +1,31 @@
 import EventDetails from "./pages/EventDetails";
+import { useState } from "react";
+import MyBookings from "./pages/MyBookings";
 
 function App() {
+    const [activePage, setActivePage] = useState("events");
   return (
       <div>
-        <EventDetails />
+  
+          <nav>
+              <button onClick={() => setActivePage("events")}>
+                  Events
+              </button>
+
+              <button onClick={() => setActivePage("bookings")}>
+                  My Bookings
+              </button>
+          </nav>
+
+          {activePage === "events" ? (
+              <EventDetails />
+          ) : (
+              <MyBookings />
+          )}
       </div>
+
   );
+
 }
 
 export default App;

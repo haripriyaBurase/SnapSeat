@@ -17,6 +17,13 @@ export const getMyActiveBooking = async () => {
 };
 
 export const payForBooking = async (bookingId) => {
-    const response = await api.post(`/api/bookings/${bookingId}/pay`);
+    const response = await api.post(
+        `/api/bookings/${bookingId}/pay`
+    );
+    return response.data;
+};
+
+export const getMyBookings=async () => {
+    const response = await api.get(`/api/bookings/my-bookings`);
     return response.data;
 };

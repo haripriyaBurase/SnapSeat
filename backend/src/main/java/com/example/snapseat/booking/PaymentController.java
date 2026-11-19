@@ -18,7 +18,7 @@ public class PaymentController {
     public ResponseEntity<BookingReceipt> confirmPayment(
             @PathVariable Long bookingId,
             Authentication auth) {
-
+        System.out.println("PAYMENT CONTROLLER CALLED!");
         String email = auth.getName();
 
         BookingReceipt receipt =
