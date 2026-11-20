@@ -39,7 +39,7 @@ public class BookingPostProcessingListener {
     public void processBooking(BookingConfirmedEvent event) {
 
 
-        Long bookingId = event.bookingId();
+        Long bookingId = event.getBookingId();
 
         log.info("Background processing started for booking: {}", bookingId);
 

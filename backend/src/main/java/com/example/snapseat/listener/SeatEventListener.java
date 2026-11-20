@@ -1,6 +1,7 @@
 
 package com.example.snapseat.listener;
 
+import com.example.snapseat.booking.BookingConfirmedEvent;
 import com.example.snapseat.event.SeatStatusChangedEvent;
 import com.example.snapseat.seat.SeatUpdate;
 
@@ -26,7 +27,6 @@ public class SeatEventListener {
     public void handleSeatStatusChanged(
             SeatStatusChangedEvent event
     ) {
-
         SeatUpdate update = event.getSeatUpdate();
 
         Long eventId = update.eventId();
@@ -41,6 +41,23 @@ public class SeatEventListener {
                         + update.seatNumber()
                         + " | Status: "
                         + update.status()
+        );
+    }
+
+    @TransactionalEventListener(
+            phase = TransactionPhase.AFTER_COMMIT
+    )
+    public void handleBookingConfirmed(
+            BookingConfirmedEvent event
+    ) {
+        messagingTemplate.convertAndSend(
+                "/topic/admin/analytics",
+                event.getBookingId()
+        );
+
+        System.out.println(
+                "Admin analytics update triggered for booking: "
+                        + event.getBookingId()
         );
     }
 }
