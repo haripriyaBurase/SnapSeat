@@ -21,6 +21,10 @@ public class AsyncConfig {
         executor.setQueueCapacity(100);
         executor.setThreadNamePrefix("SnapSeat-Async-");
 
+        // Graceful shutdown
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(30);
+
         executor.initialize();
 
         return executor;

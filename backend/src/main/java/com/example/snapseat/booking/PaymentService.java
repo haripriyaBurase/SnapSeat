@@ -37,7 +37,6 @@ public class PaymentService {
 
     @Transactional
     public BookingReceipt confirmPayment(Long bookingId, String email) {
-        System.out.println("========== PAYMENT SERVICE CALLED ==========");
         Long seatId = br.findSeatIdByBookingId(bookingId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Booking not found"

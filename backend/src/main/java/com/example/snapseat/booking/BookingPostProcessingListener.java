@@ -41,7 +41,11 @@ public class BookingPostProcessingListener {
 
         Long bookingId = event.getBookingId();
 
-        log.info("Background processing started for booking: {}", bookingId);
+        log.info(
+                "Background processing started | Booking: {} | Thread: {}",
+                bookingId,
+                Thread.currentThread().getName()
+        );
 
         try {
             // 1. Fetch booking from database
