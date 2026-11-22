@@ -10,6 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.example.snapseat.event.Event;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -39,6 +41,9 @@ class BookingServiceTest {
     @InjectMocks
     private BookingService bs;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     //Book available seat correctly
     @Test
     void bookAvailableSeat() {
@@ -49,7 +54,11 @@ class BookingServiceTest {
         User u = new User();
         Seat s = new Seat();
 
+        Event event = new Event();
+        s.setEvent(event);
+
         s.setStatus(SeatStatus.AVAILABLE);
+
 
         when(ur.findByEmail(email))
                 .thenReturn(Optional.of(u));
@@ -141,11 +150,15 @@ class BookingServiceTest {
         User u = new User();
         Seat s = new Seat();
 
+        Event event = new Event();
+        s.setEvent(event);
+
         s.setStatus(SeatStatus.LOCKED);
         s.setLockedUntil(OffsetDateTime.now().minusMinutes(1));
 
         Booking old = new Booking();
         old.setStatus(BookingStatus.PENDING);
+
 
         when(ur.findByEmail(email))
                 .thenReturn(Optional.of(u));
@@ -173,6 +186,7 @@ class BookingServiceTest {
         verify(br).save(any(Booking.class));
         verify(sr).save(s);
     }
+
 
 
 }
