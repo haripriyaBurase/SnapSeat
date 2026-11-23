@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 function useCountdown(lockedUntil) {
 
     const calculateTimeLeft = () => {
-
         if (!lockedUntil) return 0;
 
         const difference =
@@ -18,13 +17,18 @@ function useCountdown(lockedUntil) {
     useEffect(() => {
 
         if (!lockedUntil) {
-            setTimeLeft(0);
             return;
         }
 
         const interval = setInterval(() => {
 
-            const remaining = calculateTimeLeft();
+            const remaining =
+                Math.max(
+                    0,
+                    Math.floor(
+                        (new Date(lockedUntil).getTime() - Date.now()) / 1000
+                    )
+                );
 
             setTimeLeft(remaining);
 

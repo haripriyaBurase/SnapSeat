@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getAdminAnalytics } from "../services/adminApi";
 import "./AdminDashboard.css";
 
@@ -9,21 +9,50 @@ function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const fetchAnalytics = async () => {
+    const fetchAnalytics = useCallback(async () => {
         try {
-            setError("");
             const data = await getAdminAnalytics();
+
+            setError("");
             setAnalytics(data);
+
         } catch (err) {
             console.error("Failed to fetch admin analytics:", err);
             setError("Unable to load dashboard analytics.");
+
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
-        fetchAnalytics();
+
+        let active = true;
+
+        getAdminAnalytics()
+            .then((data) => {
+                if (active) {
+                    setError("");
+                    setAnalytics(data);
+                }
+            })
+            .catch((err) => {
+                console.error("Failed to fetch admin analytics:", err);
+
+                if (active) {
+                    setError("Unable to load dashboard analytics.");
+                }
+            })
+            .finally(() => {
+                if (active) {
+                    setLoading(false);
+                }
+            });
+
+        return () => {
+            active = false;
+        };
+
     }, []);
 
     const totalTickets = analytics.reduce(
