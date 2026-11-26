@@ -10,7 +10,7 @@ function useSeatUpdates(eventId, setSeats) {
         const client = new Client({
 
             webSocketFactory: () =>
-                new SockJS("http://localhost:8080/ws"),
+                new SockJS("brokerURL: import.meta.env.VITE_WS_URL,"),
 
             reconnectDelay: 5000,
 

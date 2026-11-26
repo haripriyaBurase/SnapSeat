@@ -1,17 +1,22 @@
-
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
 
   define: {
-    global: 'globalThis'
+    global: "globalThis",
+  },
+
+  build: {
+    outDir: "dist",
+    sourcemap: false,
+    emptyOutDir: true,
   },
 
   test: {
-    environment: 'jsdom',
-    setupFiles: './src/test/setup.js',
-    clearMocks: true
-  }
-})
+    environment: "jsdom",
+    setupFiles: "./src/test/setup.js",
+    clearMocks: true,
+  },
+});

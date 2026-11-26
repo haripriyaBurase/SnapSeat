@@ -33,3 +33,6 @@ build/
 .vscode/
 
 /backend/tickets/
+node_modules
+.env.local
+.env.*.local
